@@ -59,31 +59,48 @@ function Section({children, title}: SectionProps): React.JSX.Element {
   );
 }
 
-export default function PaymentScreen() {
-  const {confirmPayment} = useStripe();
+export function PaymentScreen() {
+  const {createToken} = useStripe();
+
+  const handlePayment = async () => {
+    // Create a token for the entered card details
+    const {token, error} = await createToken({
+      type: 'Card',
+    });
+
+    if (error) {
+      console.log('Error creating token:', error);
+    } else {
+      console.log('Created token:', token);
+      // You can now use this token to process the payment on your server
+    }
+  };
 
   return (
-    <CardField
-      postalCodeEnabled={true}
-      placeholders={{
-        number: '4242 4242 4242 4242',
-      }}
-      cardStyle={{
-        backgroundColor: '#FFFFFF',
-        textColor: '#000000',
-      }}
-      style={{
-        width: '100%',
-        height: 50,
-        marginVertical: 30,
-      }}
-      onCardChange={cardDetails => {
-        console.log('cardDetails', cardDetails);
-      }}
-      onFocus={focusedField => {
-        console.log('focusField', focusedField);
-      }}
-    />
+    <>
+      <CardField
+        postalCodeEnabled={true}
+        placeholders={{
+          number: '4242 4242 4242 4242',
+        }}
+        cardStyle={{
+          backgroundColor: '#FFFFFF',
+          textColor: '#000000',
+        }}
+        style={{
+          width: '100%',
+          height: 50,
+          marginVertical: 30,
+        }}
+        onCardChange={cardDetails => {
+          console.log('cardDetails', cardDetails);
+        }}
+        onFocus={focusedField => {
+          console.log('focusField', focusedField);
+        }}
+      />
+      <Button onPress={handlePayment} title="Pay" />
+    </>
   );
 }
 
@@ -170,44 +187,13 @@ function App(): React.JSX.Element {
     client.checkout.p;
   };
 
-  const applePay = async ({amount}) => {
-    if (!isApplePaySupported || paymentLoading) {
-      return;
-    }
-    setPaymentLoading(true);
-    const {error} = await presentApplePay({
-      cartItems: [{label: 'topup', amount: amount.toString()}],
-      country: 'DE',
-      currency: 'EUR',
-    });
-    if (error) {
-      showErrorMessage(error?.message || '', amount);
-    } else {
-      const clientSecret = await fetchPaymentIntentClientSecret({
-        amount,
-        gateway: 'applepay',
-      });
-      if (clientSecret) {
-        const {error: confirmError} = await confirmApplePayPayment(
-          clientSecret,
-        );
-        if (confirmError) {
-          showErrorMessage(confirmError?.localizedMessage || '', amount);
-        } else {
-          onSuccess(`Payment of EUR ${amount} is successful! `);
-        }
-      }
-    }
-  };
-
   return (
     <StripeProvider
       publishableKey="pk_test_yS8bTvvGQPxix2kipjOTCZXJ"
       merchantIdentifier="merchant.com.phenology.applepay" // required for Apple Pay
       // urlScheme="your-url-scheme" // required for 3D Secure and bank redirects
     >
-      <ApplePayScreen />
-      {/* <SafeAreaView style={backgroundStyle}>
+      <SafeAreaView style={backgroundStyle}>
         <StatusBar
           barStyle={isDarkMode ? 'light-content' : 'dark-content'}
           backgroundColor={backgroundStyle.backgroundColor}
@@ -231,7 +217,6 @@ function App(): React.JSX.Element {
                 );
               })}
 
-            <Button onPress={() => pay()} title="Pay" />
             <PaymentScreen />
 
             <Section title="Products" />
@@ -258,8 +243,9 @@ function App(): React.JSX.Element {
                 })}
             </View>
           </View>
+          <ApplePayScreen />
         </ScrollView>
-      </SafeAreaView> */}
+      </SafeAreaView>
     </StripeProvider>
   );
 }
