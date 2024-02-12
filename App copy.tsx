@@ -27,7 +27,6 @@ import {
   CardField,
   useStripe,
 } from '@stripe/stripe-react-native';
-import ApplePayScreen from './ApplePayScreen';
 
 type SectionProps = PropsWithChildren<{
   title: string;
@@ -206,8 +205,7 @@ function App(): React.JSX.Element {
       merchantIdentifier="merchant.com.phenology.applepay" // required for Apple Pay
       // urlScheme="your-url-scheme" // required for 3D Secure and bank redirects
     >
-      <ApplePayScreen />
-      {/* <SafeAreaView style={backgroundStyle}>
+      <SafeAreaView style={backgroundStyle}>
         <StatusBar
           barStyle={isDarkMode ? 'light-content' : 'dark-content'}
           backgroundColor={backgroundStyle.backgroundColor}
@@ -259,7 +257,7 @@ function App(): React.JSX.Element {
             </View>
           </View>
         </ScrollView>
-      </SafeAreaView> */}
+      </SafeAreaView>
     </StripeProvider>
   );
 }
