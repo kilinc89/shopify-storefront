@@ -79,7 +79,7 @@ export function PaymentScreen() {
   return (
     <>
       <CardField
-        postalCodeEnabled={true}
+        postalCodeEnabled={false}
         placeholders={{
           number: '4242 4242 4242 4242',
         }}
